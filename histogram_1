@@ -1,0 +1,30 @@
+import math
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# california_housing_dataframe
+df = pd.read_csv("https://download.mlcc.google.com/mledu-datasets/california_housing_train.csv", sep=",")
+#group 기준 추가(0~20, 20~40, 40~60)
+df['age_group'] = (df.housing_median_age/20).astype(int)
+#사용할 데이터만 가져오기
+df = df[['latitude', 'housing_median_age','age_group']]
+nb_group = len(df.age_group.unique())
+#히스토그램 그리기 : age group별로
+# 계급의 크기
+br = 2
+
+# 극단값 추가하기
+outlier_max = int(max(df.latitude)) +3
+outlier_min = int(min(df.latitude)) - 2
+# 계급의 개수 bin
+# 구간 내  최댓값-최솟값(new range)를 계급의 크기로 나눔
+bin = int(math.ceil((outlier_max-outlier_min)/br))
+
+for i in range(nb_group):
+  add_df = pd.DataFrame([[outlier_max,0,i], [outlier_min,0,i]])
+  add_df.columns = df.columns
+  temp = pd.concat([df, add_df])
+  plt.hist(temp[temp.age_group==i].latitude, alpha = 0.5, bins=bin,label=i)
+plt.legend()  
+plt.grid(True)
+plt.show()
